@@ -2390,10 +2390,44 @@ text-decoration: none;
 color: var(--wwu-gold);
 }
 
+
+.quarto-title-meta-heading {
+display: none;
+}
+
+.quarto-title-meta-contents p {
+font-size: 0.92rem;
+color: var(--gray-text);
+margin: 0.1rem 0;
+}
+.quarto-title-meta {
+margin-top: 0.3rem;
+}
+
+.subtitle.lead {
+font-size: 1.1rem;
+font-weight: 400;
+color: #444;
+font-style: italic;
+margin-top: 0.2rem;
+}
+
 @media (max-width: 700px) {
 body { font-size: 15px; }
 .lab-meta { flex-direction: column; gap: 0.4rem; }
 table { font-size: 0.82rem; }
+}
+
+
+.page-layout-article {
+padding-left: 1rem !important;
+padding-right: 1rem !important;
+}
+
+#quarto-margin-sidebar {
+max-width: 180px;
+min-width: 160px;
+font-size: 0.82rem;
 }
 </style>
 </head>
@@ -2451,11 +2485,11 @@ table { font-size: 0.82rem; }
   </ul></li>
   <li><a href="#sop" id="toc-sop" class="nav-link" data-scroll-target="#sop">Standard Operating Procedure (SOP)</a>
   <ul class="collapse">
-  <li><a href="#purpose" id="toc-purpose" class="nav-link" data-scroll-target="#purpose">1. Purpose</a></li>
-  <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources">2. Data Sources</a></li>
-  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">3. Methods</a></li>
-  <li><a href="#results-summary" id="toc-results-summary" class="nav-link" data-scroll-target="#results-summary">4. Results Summary</a></li>
-  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">5. Limitations</a></li>
+  <li><a href="#objective" id="toc-objective" class="nav-link" data-scroll-target="#objective">1. Objective</a></li>
+  <li><a href="#data-inventory" id="toc-data-inventory" class="nav-link" data-scroll-target="#data-inventory">2. Data Inventory</a></li>
+  <li><a href="#sop-the-workflow" id="toc-sop-the-workflow" class="nav-link" data-scroll-target="#sop-the-workflow">3. SOP — The Workflow</a></li>
+  <li><a href="#results-and-visual-evidence" id="toc-results-and-visual-evidence" class="nav-link" data-scroll-target="#results-and-visual-evidence">4. Results and Visual Evidence</a></li>
+  <li><a href="#analysts-note" id="toc-analysts-note" class="nav-link" data-scroll-target="#analysts-note">5. Analyst’s Note</a></li>
   </ul></li>
   <li><a href="#submission-checklist" id="toc-submission-checklist" class="nav-link" data-scroll-target="#submission-checklist">Submission Checklist</a></li>
   </ul>
@@ -2553,7 +2587,7 @@ Warning
 </section>
 <section id="part-0" class="level2">
 <h2 class="anchored" data-anchor-id="part-0">Part 0 — ArcGIS Pro Orientation</h2>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="no-icon callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -2671,7 +2705,7 @@ Warning
 </tr>
 </tbody>
 </table>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="no-icon callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -2821,7 +2855,7 @@ Warning
 <li>Click <strong>Run</strong></li>
 </ol>
 <p>When complete, right-click the output in the Catalog Pane → <strong>Add to Current Map</strong>.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="no-icon callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -2955,7 +2989,7 @@ Warning
 </ul>
 Adjust visually if needed — the goal is an image where you can distinguish detail in both bright and dark areas without either clipping to solid white or solid black.</li>
 </ol>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="no-icon callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -3167,7 +3201,7 @@ Note
 </tr>
 </tbody>
 </table>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="no-icon callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -3201,7 +3235,7 @@ Tip
 <li>After adding each point, double-click its name in the list to <strong>rename it</strong> to its cover type (e.g., “Forest”, “Burnt”, “Irrigated”, etc.)</li>
 <li>Click the colored square next to each entry to assign an intuitive color</li>
 </ol>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="no-icon callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -3383,7 +3417,7 @@ Note
 <li>Double-click inside the frame to activate it, then pan and zoom to center on and highlight the <strong>burn scar</strong> — this is your subject, and it should dominate the frame</li>
 <li>Click outside the frame to deactivate when you are satisfied with the extent</li>
 </ol>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="no-icon callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -3480,13 +3514,13 @@ Warning
 <h2 class="anchored" data-anchor-id="sop">Standard Operating Procedure (SOP)</h2>
 <p>Complete this section <strong>in your own words</strong> as you work through the lab. Your SOP is a replicable procedure document — someone else should be able to follow it to reproduce your exact result. Write it as if addressing a technically competent colleague who has never done this specific task.</p>
 <hr>
-<section id="purpose" class="level3">
-<h3 class="anchored" data-anchor-id="purpose">1. Purpose</h3>
+<section id="objective" class="level3">
+<h3 class="anchored" data-anchor-id="objective">1. Objective</h3>
 <p><em>In 2–4 sentences, state the scientific purpose of this analysis. What environmental question are you investigating, and what does the Landsat 8 imagery allow you to observe that other methods would not?</em></p>
 <hr>
 </section>
-<section id="data-sources" class="level3">
-<h3 class="anchored" data-anchor-id="data-sources">2. Data Sources</h3>
+<section id="data-inventory" class="level3">
+<h3 class="anchored" data-anchor-id="data-inventory">2. Data Inventory</h3>
 <p><em>List each data source used, following this format:</em></p>
 <table class="caption-top table">
 <colgroup>
@@ -3524,19 +3558,19 @@ Warning
 </table>
 <hr>
 </section>
-<section id="methods" class="level3">
-<h3 class="anchored" data-anchor-id="methods">3. Methods</h3>
+<section id="sop-the-workflow" class="level3">
+<h3 class="anchored" data-anchor-id="sop-the-workflow">3. SOP — The Workflow</h3>
 <p><em>Write a numbered, step-by-step account of your workflow. This should be detailed enough that another student could reproduce your analysis exactly.</em></p>
 <p><em>At minimum, cover: (1) EarthExplorer scene search and filter criteria, (2) how you assembled the composite, (3) how you set each band combination, (4) how you used the Spectral Profile chart.</em></p>
 <hr>
 </section>
-<section id="results-summary" class="level3">
-<h3 class="anchored" data-anchor-id="results-summary">4. Results Summary</h3>
+<section id="results-and-visual-evidence" class="level3">
+<h3 class="anchored" data-anchor-id="results-and-visual-evidence">4. Results and Visual Evidence</h3>
 <p><em>In 3–5 sentences, summarize the key visual and spectral patterns you observed. Which band combination was most useful for identifying the burn scar? What did the spectral profiles reveal about the difference between burned and unburned surfaces?</em></p>
 <hr>
 </section>
-<section id="limitations" class="level3">
-<h3 class="anchored" data-anchor-id="limitations">5. Limitations</h3>
+<section id="analysts-note" class="level3">
+<h3 class="anchored" data-anchor-id="analysts-note">5. Analyst’s Note</h3>
 <p><em>Identify at least <strong>two</strong> limitations of this analysis. These should be methodological or data-related limitations — not personal difficulties with the software.</em></p>
 <p><em>Examples of the kinds of limitations to consider (do not simply copy these; write your own):</em> - <em>Temporal gap between fire event and image acquisition</em> - <em>Spatial resolution constraints and mixed pixels</em> - <em>Atmospheric correction assumptions in Level-2 data</em> - <em>Single-date analysis versus temporal comparison</em></p>
 <hr>
