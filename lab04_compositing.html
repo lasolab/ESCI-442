@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Dr.&nbsp;Francisco Laso, ESCI 442/542 — Introduction to Remote Sensing">
+
+<title>Lab 4: Building and Reducing Image Collections</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="lab04_compositing_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lab04_compositing_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="lab04_compositing_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="lab04_compositing_files/libs/quarto-html/popper.min.js"></script>
+<script src="lab04_compositing_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="lab04_compositing_files/libs/quarto-html/anchor.min.js"></script>
+<link href="lab04_compositing_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lab04_compositing_files/libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="lab04_compositing_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="lab04_compositing_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="lab04_compositing_files/libs/bootstrap/bootstrap-efbb37e9afcc02144ebbc7afd12a776f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+<link rel="stylesheet" href="esci442.css">
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lab 4: Building and Reducing Image Collections</h1>
+<p class="subtitle lead">Filter, map, and reduce: from raw archive to composite image</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Dr.&nbsp;Francisco Laso, ESCI 442/542 — Introduction to Remote Sensing </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Lab Contents</h2>
+   
+  <ul>
+  <li><a href="#background" id="toc-background">Background</a></li>
+  <li><a href="#part-1-building-and-exploring-a-collection" id="toc-part-1-building-and-exploring-a-collection">Part 1 — Building and Exploring a Collection</a>
+  <ul>
+  <li><a href="#filtering-the-archive" id="toc-filtering-the-archive">Filtering the archive</a></li>
+  <li><a href="#visualizing-what-is-in-the-collection" id="toc-visualizing-what-is-in-the-collection">Visualizing what is in the collection</a></li>
+  </ul></li>
+  <li><a href="#part-2-preprocessing-every-image" id="toc-part-2-preprocessing-every-image">Part 2 — Preprocessing Every Image</a>
+  <ul>
+  <li><a href="#why-the-values-must-change-before-you-reduce" id="toc-why-the-values-must-change-before-you-reduce">Why the values must change before you reduce</a></li>
+  <li><a href="#mapping-a-function-over-the-collection" id="toc-mapping-a-function-over-the-collection">Mapping a function over the collection</a></li>
+  </ul></li>
+  <li><a href="#part-3-reducing-a-collection-to-a-composite" id="toc-part-3-reducing-a-collection-to-a-composite">Part 3 — Reducing a Collection to a Composite</a>
+  <ul>
+  <li><a href="#three-reducers-three-assumptions" id="toc-three-reducers-three-assumptions">Three reducers, three assumptions</a></li>
+  <li><a href="#reading-the-histogram" id="toc-reading-the-histogram">Reading the histogram</a></li>
+  </ul></li>
+  <li><a href="#part-4-monthly-aggregation-and-vegetation-phenology" id="toc-part-4-monthly-aggregation-and-vegetation-phenology">Part 4 — Monthly Aggregation and Vegetation Phenology</a>
+  <ul>
+  <li><a href="#from-one-composite-to-twelve" id="toc-from-one-composite-to-twelve">From one composite to twelve</a></li>
+  <li><a href="#interpreting-the-skagit-valley-chart" id="toc-interpreting-the-skagit-valley-chart">Interpreting the Skagit Valley chart</a></li>
+  </ul></li>
+  <li><a href="#part-5-independent-application" id="toc-part-5-independent-application">Part 5 — Independent Application</a>
+  <ul>
+  <li><a href="#the-gran-chaco-2020" id="toc-the-gran-chaco-2020">The Gran Chaco, 2020</a></li>
+  </ul></li>
+  <li><a href="#interpretation-questions" id="toc-interpretation-questions">Interpretation Questions</a></li>
+  <li><a href="#standard-operating-procedure" id="toc-standard-operating-procedure">Standard Operating Procedure</a>
+  <ul>
+  <li><a href="#study-area" id="toc-study-area">Study Area</a></li>
+  <li><a href="#data-sources" id="toc-data-sources">Data Sources</a></li>
+  <li><a href="#methods" id="toc-methods">Methods</a></li>
+  <li><a href="#results" id="toc-results">Results</a></li>
+  <li><a href="#limitations" id="toc-limitations">Limitations</a></li>
+  </ul></li>
+  <li><a href="#submission-checklist" id="toc-submission-checklist">Submission Checklist</a></li>
+  </ul>
+</nav>
+<div class="lab-header">
+  <div class="lab-meta">
+    <span class="lab-number">Lab 4</span>
+    <span class="lab-module">Module 4 — Filtering and Reducing Collections</span>
+  </div>
+  <div class="lab-readings">
+    <strong>Readings due before lab:</strong>
+    Campbell Ch. 11.2 — Image Statistics &nbsp;|&nbsp;
+    Ch. 11.4 — Radiometric Preprocessing &nbsp;|&nbsp;
+    Ch. 17.3 — Phenological Studies &nbsp;|&nbsp;
+    Cardille Ch. F12 — Filter, Map, Reduce &nbsp;|&nbsp;
+    Ch. F13 — Cloud Masking and Percentile Compositing &nbsp;|&nbsp;
+    Ch. F14 — Temporal Aggregation
+  </div>
+</div>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>Every Landsat image in Google Earth Engine is a single moment — one overpass, one cloud geometry, one atmospheric state. In Labs 2 and 3 you worked with single scenes, and that was appropriate: both labs were about reading what a sensor sees at a specific time and place. But most environmental questions are not about a moment. They are about a process. A drought unfolds over months. A forest is cleared across multiple growing seasons. A river delta shifts through years of sediment delivery. Answering those questions requires not one image but a <em>collection</em> of images — and a principled way to compress that collection into something analytically useful.</p>
+<p>The Landsat archive holds more than 1.9 million scenes from the Landsat 8 instrument alone. That number is not useful in its raw form; it needs to be filtered, preprocessed, and then statistically summarized. Cardille et al.&nbsp;(Ch. F12) frames this as a three-step workflow: <em>filter</em> the archive to a manageable subset, <em>map</em> a preprocessing function over every image in that subset, and <em>reduce</em> the result to a composite that represents what the scene typically looks like. Each step is not arbitrary software design — each solves a specific scientific problem that arises when you try to turn a pile of imagery into an interpretable result.</p>
+<p>Before any pixel value can be used in a statistic, it must mean something in physical units. Landsat Collection 2 Level 2 products store <em>surface reflectance</em> as 16-bit unsigned integers — a compact encoding that must be converted to true reflectance values before any comparison across dates or locations is valid. Campbell Ch. 11.4 describes this conversion as a mandatory radiometric preprocessing step; the scale factor is not optional decoration but a prerequisite for any meaningful calculation. And before averaging across a stack of images, pixels contaminated by clouds must be identified and excluded. A single cloud in fifteen scenes can double the apparent reflectance of the pixel it covers, pulling statistics away from the surface they are supposed to describe. The pixel-by-pixel quality flags bundled with each Landsat acquisition identify cloudy pixels before they can corrupt the result.</p>
+<p>By the end of this lab you will have built a complete processing chain from the raw archive to a monthly NDVI time series, applied it to two locations with very different phenological stories — Lisbon, Portugal, and the Skagit Valley in Washington — and then applied the same chain independently to a third location, the Gran Chaco of Paraguay. That last application asks you to interpret a record from 2020, a year when fire and drought produced a signal that stands apart from the seasonal vegetation cycle and connects directly to the deforestation history Hansen et al.&nbsp;(2013) documented from space.</p>
+<hr>
+<div class="no-icon callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Lab Objectives</strong></p>
+<p>By the end of this lab you will be able to:</p>
+<ol type="1">
+<li>Filter a Landsat ImageCollection by location, date, and scene-level cloud cover to define the analytical sample</li>
+<li>Distinguish between scene-level cloud filtering, which screens entire acquisitions, and pixel-level cloud masking, which removes individual contaminated pixels using quality flags</li>
+<li>Apply a radiometric scale factor and pixel-level cloud mask to every image in a collection using the <code>.map()</code> pattern</li>
+<li>Produce mean, median, and percentile composites from a preprocessed collection and describe how each reducer treats outlier values</li>
+<li>Compare the three composite types visually and statistically and connect the differences to the distribution of cloud-contaminated pixel values in the stack</li>
+<li>Build monthly median composites across a full calendar year and chart an NDVI time series</li>
+<li>Interpret an NDVI phenology chart in terms of the seasonal climate and vegetation type at the sampled location</li>
+<li>Apply the complete filter-map-reduce-aggregate pipeline independently to a new geographic context and interpret an anomalous signal within the seasonal record</li>
+</ol>
+</div>
+</div>
+<hr>
+<div class="no-icon callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Before You Begin</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox">You have completed Lab 3 and are comfortable filtering an ImageCollection and reading metadata from the GEE Console</label></li>
+<li><label><input type="checkbox"><strong>Add the course script repository to your GEE account</strong> — click <a href="https://code.earthengine.google.com/?accept_repo=users/galapagosobservatory/ESCI442"><strong>this link</strong></a> and click <strong>Accept</strong> when prompted. Lab 4 scripts will appear in your Scripts panel under the shared repository.</label></li>
+<li><label><input type="checkbox">You have read Campbell Ch. 11.2, 11.4, and 17.3 and Cardille Ch. F12, F13, and F14 before arriving</label></li>
+<li><label><input type="checkbox">You have read the Hansen et al.&nbsp;(2013) paper assigned on Perusall before arriving</label></li>
+<li><label><input type="checkbox">You have a GEE account and the Code Editor is open at <a href="https://code.earthengine.google.com">code.earthengine.google.com</a></label></li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+<section id="part-1-building-and-exploring-a-collection" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-building-and-exploring-a-collection">Part 1 — Building and Exploring a Collection</h2>
+<section id="filtering-the-archive" class="level3">
+<h3 class="anchored" data-anchor-id="filtering-the-archive">Filtering the archive</h3>
+<p>The Landsat 8 Collection 2 Level 2 archive contains nearly two million images acquired since the sensor’s launch in 2013. That full archive is the starting point for every analysis — but it is also useless until it is narrowed down to the images that are relevant to a specific question. Script L4.1 makes the narrowing process explicit by printing the size of the collection after each filter is applied. You will watch the count fall in three stages: from millions down to a few hundred (by location), then to a few dozen (by year), then to a working set of about fifteen (by scene-level cloud cover).</p>
+<p>The order in which those filters are applied is not arbitrary. Cardille et al.&nbsp;(Ch. F12) explain the efficiency argument: filtering by location first eliminates the overwhelming majority of images before the date filter even runs, because Landsat 8 has imaged most of the Earth’s surface thousands of times but each individual tile has been imaged roughly once every sixteen days. Applying the most selective filter first is the difference between a query that returns in seconds and one that times out. The script demonstrates both orderings — efficient and inefficient — and prints identical final counts for both. That identical count is the confirmation that filter order changes processing speed, not the result.</p>
+<p>The scene-level cloud cover threshold you apply in this step does something conceptually different from the pixel-level masking you will do in Part 2. It operates on a single number attached to each scene as metadata — an estimate, made by the USGS ground processing system, of what fraction of the scene is covered by cloud. Filtering on this number removes entire acquisitions from the collection; it says nothing about which individual pixels are cloudy. A scene that passes a 50% threshold may still have the exact location you care about sitting under a cloud. That is why the scene filter and the pixel mask are both necessary and why neither replaces the other.</p>
+</section>
+<section id="visualizing-what-is-in-the-collection" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-what-is-in-the-collection">Visualizing what is in the collection</h3>
+<p>Script L4.2 builds on the filtered collection from L4.1 and introduces two ways to look at it before reducing. The first is a <em>per-pixel count map</em> — a spatial image showing how many times each geographic location was captured across all the scenes that passed your filters. The count is not uniform; it depends on orbit geometry, the overlap between adjacent Landsat swaths, and how many of the scenes over a given pixel passed the cloud threshold. Locations near the edge of the swath, where adjacent orbits overlap, tend to have higher counts. Densely cloudy regions over the ocean or near coastlines tend to have lower counts.</p>
+<p>The second is a <em>time series chart</em> — a plot of one band’s value at a specific point across all the acquisition dates in the collection. This chart is not yet a clean phenological record; it samples raw, unscaled digital numbers that include both the surface and any cloud contamination that slipped past the scene-level filter. The variation in the chart is diagnostic: dates where the value spikes sharply above the surrounding observations correspond to acquisitions where the sample pixel was covered or partially covered by cloud. Campbell Ch. 11.2’s description of the histogram as a tool for diagnosing value distributions applies directly here — the time series gives you the same distributional information but spread across a temporal rather than spatial axis.</p>
+<div class="no-icon callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Scripts L4.1 and L4.2 cover:</strong> <code>filterBounds</code>, <code>filterDate</code>, <code>filterMetadata</code>; collection <code>.size()</code>; per-pixel count compositing; <code>ui.Chart.image.series</code> for temporal exploration. Confirm <strong>Checkpoint L4-CP1</strong> and <strong>Checkpoint L4-CP2</strong> before continuing.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-2-preprocessing-every-image" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-preprocessing-every-image">Part 2 — Preprocessing Every Image</h2>
+<section id="why-the-values-must-change-before-you-reduce" class="level3">
+<h3 class="anchored" data-anchor-id="why-the-values-must-change-before-you-reduce">Why the values must change before you reduce</h3>
+<p>The pixel values stored in a raw Landsat Collection 2 Level 2 image are integers in the range of approximately 7,000 to 60,000. Those numbers do not represent reflectance; they represent reflectance <em>encoded</em> as integers through a standard affine transform. The true surface reflectance — a dimensionless ratio between zero and one — can only be recovered by applying the official USGS scale factor: multiply by 0.0000275 and subtract 0.2. This is the conversion Campbell Ch. 11.4 describes as radiometric preprocessing. Until it is applied, the pixel values are internally consistent but physically uninterpretable: an average of raw integers is a mathematical result, not a meaningful estimate of surface conditions.</p>
+<p>Cloud masking operates on a different band entirely. The Landsat C2 L2 product includes a <code>QA_PIXEL</code> band alongside the spectral bands. Each pixel in <code>QA_PIXEL</code> is a 16-bit integer whose individual bits encode separate quality conditions: whether the pixel is cloud, cloud shadow, dilated cloud, or cirrus. The mask is constructed by reading those bits and zeroing out pixels where any of the relevant flags are set. This is a per-pixel operation — not a scene-level judgment, but an image-by-image, pixel-by-pixel quality screen applied at the full spatial resolution of the data. Pixels that fail the mask become transparent and are excluded from any subsequent statistics.</p>
+</section>
+<section id="mapping-a-function-over-the-collection" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-a-function-over-the-collection">Mapping a function over the collection</h3>
+<p>Script L4.3 introduces the <em>map</em> step of the filter-map-reduce workflow. Rather than writing a loop that processes one image at a time, a single preprocessing function — <code>maskAndScale()</code> — is defined and then applied to every image in the collection in one line. The result is a new collection of the same size, where every image has been cloud-masked and radiometrically scaled. The <code>.map()</code> pattern is not just a programming convenience; it is the foundation of Earth Engine’s distributed computing model. Earth Engine parallelizes the map step automatically across its compute infrastructure, so a collection of fifteen images is processed no differently from a collection of ten thousand.</p>
+<p>The before-and-after map display in this script lets you toggle between the raw, unscaled collection mosaic and the processed collection. The processed layer will have transparent gaps where clouds have been removed — the Google satellite basemap shows through those gaps. The values visible in the processed layer are in the range of 0.0 to about 0.4 for typical land surfaces, which is the reflectance range Campbell Ch. 11.4 describes for vegetated and urban cover.</p>
+<figure style="margin:1.2rem 0;" class="figure">
+  <div style="display:flex; gap:1rem; align-items:flex-start;">
+    <figure style="flex:1; margin:0;" class="figure">
+      <img src="images/Lisbon_RawMosaic_crop.png" style="width:100%; height:auto; display:block;" class="figure-img">
+      <figcaption style="font-size:0.88rem; color:#555; margin-top:0.3rem;"><strong>Before:</strong> Raw uint16 mosaic. Cloud contamination appears as anomalously bright patches; values are in the 0–65,535 range.</figcaption>
+    </figure>
+    <figure style="flex:1; margin:0;" class="figure">
+      <img src="images/Lisbon_Scaled_CloudMasked_crop.png" style="width:100%; height:auto; display:block;" class="figure-img">
+      <figcaption style="font-size:0.88rem; color:#555; margin-top:0.3rem;"><strong>After:</strong> Cloud-masked, radiometrically scaled composite. Transparent gaps mark pixels removed by the QA_PIXEL bitmask; surface reflectance values are now in the 0.0–0.4 range typical of vegetated and urban surfaces.</figcaption>
+    </figure>
+  </div>
+  <figcaption style="font-size:0.88rem; color:#555; text-align:center; margin-top:0.6rem;">Before-and-after comparison over Lisbon, Portugal (2022 Landsat 8 collection). In the right panel, the satellite basemap is visible through the transparent cloud-masked gaps.</figcaption>
+</figure>
+<div class="no-icon callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Script L4.3 covers:</strong> QA_PIXEL bitmask construction; <code>updateMask()</code>; <code>multiply()</code> and <code>add()</code> for scaling; <code>.map()</code> applied to a collection; <code>copyProperties()</code> for timestamp preservation. Confirm <strong>Checkpoint L4-CP3</strong> before continuing.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-3-reducing-a-collection-to-a-composite" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-reducing-a-collection-to-a-composite">Part 3 — Reducing a Collection to a Composite</h2>
+<section id="three-reducers-three-assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="three-reducers-three-assumptions">Three reducers, three assumptions</h3>
+<p>Once the collection has been preprocessed, it can be <em>reduced</em> — collapsed from a stack of fifteen images into a single composite image where each pixel holds one representative value. Script L4.4 produces three composites using three different reducers, and the differences between them reveal something important about the distribution of values in the stack.</p>
+<p>The <em>mean</em> composite assigns equal weight to every observation. In a cloud-free stack, this is a sensible and statistically efficient choice. In a stack where some cloud contamination has survived the mask — thin cirrus, cloud edges, shadow boundaries where the QA flag did not fire — the mean is the most vulnerable. A single anomalously bright cloud-edge pixel in fifteen observations pulls the mean upward without any visible warning in the output.</p>
+<p>The <em>median</em> composite picks the middle value when all observations at a pixel are ranked in order. It is robust to outliers by construction: whether the contaminating value is the highest in the stack or the second-highest, it does not affect the median as long as fewer than half the observations are contaminated. For the fifteen-image Lisbon collection, median and mean often agree closely — but where they diverge, the gap is diagnostic of contamination that survived the mask.</p>
+<p>The <em>30th-percentile</em> composite — or whichever percentile you choose in the script’s CONFIGURATION — deliberately picks a value from the lower end of the ranked distribution. The logic here, which Cardille et al.&nbsp;(Ch. F13) explain directly, is asymmetric: cloud contamination always pushes pixel values upward (clouds are bright), never downward. A percentile from the lower portion of the distribution is therefore systematically less likely to include contamination. The tradeoff is that it also picks genuinely lower-reflectance observations — dark atmospheric conditions, shadows, or partially senesced vegetation — over brighter, greener ones.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Lisbon_30thPercentile.png" class="img-fluid figure-img" style="width:95.0%"></p>
+<figcaption>30th-percentile composite (PERCENTILE_CUT = 30) over Lisbon, Portugal — 2022 Landsat 8 collection.</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Lisbon_80thPercentile.png" class="img-fluid figure-img" style="width:95.0%"></p>
+<figcaption>80th-percentile composite (PERCENTILE_CUT = 80) over the same study area and year.</figcaption>
+</figure>
+</div>
+</section>
+<section id="reading-the-histogram" class="level3">
+<h3 class="anchored" data-anchor-id="reading-the-histogram">Reading the histogram</h3>
+<p>The script’s final section places all three composite distributions side by side in a histogram of the red band (SR_B4) over a 50-kilometer region around the Lisbon study point. The histogram makes the distributional logic visible rather than abstract. Before reading any explanations of what you are supposed to see, examine the histogram and describe what you observe: where does each distribution sit relative to the others, and what is the shape of each curve?</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Lisbon_ReducerHistogram.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<figcaption>SR_B4 (red band) reflectance distributions for the mean, median, and 30th-percentile composites over a 50-kilometer region around the Lisbon study point. Each curve represents the distribution of pixel values across that area for each composite type.</figcaption>
+</figure>
+</div>
+<div class="no-icon callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Script L4.4 covers:</strong> <code>ee.Reducer.mean()</code>, <code>ee.Reducer.median()</code>, <code>ee.Reducer.percentile()</code>; <code>reduceRegion()</code> for point statistics; <code>ui.Chart.image.histogram</code> with <code>ee.Image.cat()</code> for multi-band overlay. Confirm <strong>Checkpoint L4-CP4</strong> before continuing.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-4-monthly-aggregation-and-vegetation-phenology" class="level2">
+<h2 class="anchored" data-anchor-id="part-4-monthly-aggregation-and-vegetation-phenology">Part 4 — Monthly Aggregation and Vegetation Phenology</h2>
+<section id="from-one-composite-to-twelve" class="level3">
+<h3 class="anchored" data-anchor-id="from-one-composite-to-twelve">From one composite to twelve</h3>
+<p>A single annual composite collapses an entire year of observations into one image. That is useful for mapping land cover, but it loses the temporal signal — the seasonal rhythm of greening and senescence that distinguishes a wheat field from a conifer forest, or a wet-season tropical forest from a drought-stressed one. <em>Temporal aggregation</em> recovers that signal by dividing the year into windows and reducing each window independently.</p>
+<p>Script L4.5 moves from Lisbon to the Skagit Valley in Washington, a broad agricultural basin flanked by the Cascade Range. The script partitions the 2022 calendar year into twelve one-month windows and applies the same preprocessing and median reduction to each window. The result is a collection of twelve monthly composites, each tagged with its acquisition month so that a time-series chart can place them correctly on the time axis.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Skagit_monthlyMedians2022.png" class="img-fluid figure-img" style="width:95.0%"></p>
+<figcaption>Monthly median composites of the Skagit Valley for 2022, produced from the merged Landsat 8 and 9 collection. Each panel represents one calendar month; months with insufficient clear-sky coverage appear as masked or partially filled composites.</figcaption>
+</figure>
+</div>
+<p>The <em>NDVI</em> — Normalized Difference Vegetation Index — is computed for each image before the monthly reduction. NDVI measures the contrast between red and near-infrared reflectance; live green vegetation absorbs strongly in the red and reflects strongly in the near-infrared, producing values close to 1. Bare soil, water, and impervious surfaces produce lower values; dense green canopy approaches 0.9. Campbell Ch. 17.3 describes vegetation phenology as one of the primary applications of multi-temporal NDVI data: the annual curve of NDVI at a single point encodes the timing of green-up, peak biomass, and senescence in a form directly readable from the chart.</p>
+</section>
+<section id="interpreting-the-skagit-valley-chart" class="level3">
+<h3 class="anchored" data-anchor-id="interpreting-the-skagit-valley-chart">Interpreting the Skagit Valley chart</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Skagit_NDVI.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<figcaption>Monthly NDVI time series at the Skagit Valley agricultural sample point (2022 Landsat 8/9 merged collection). Chart produced from the twelve-image monthly composite stack in Script L4.5.</figcaption>
+</figure>
+</div>
+<p>The NDVI time series you produce in this script reflects conditions at a single point — a specific pixel in the Skagit Valley lowlands. The shape of that curve is determined by what the pixel overlaps, and in an agricultural valley with cover crops, row crops, fallow fields, and managed wetlands, different pixels produce very different annual rhythms. Before drawing conclusions about regional phenology from a point chart, it is worth examining the NDVI spatial composite for the same months and checking whether the sampled pixel is representative of the surrounding landscape or an outlier.</p>
+<p>Not every month will produce a visible data point on the chart. The Pacific Northwest receives substantial cloud cover through fall and winter; some monthly windows may contain no clear-sky observations at the sample point after masking, and those months will appear as gaps. This is not an error — it is an accurate representation of data availability, and it is the same information limitation that Hansen et al.&nbsp;(2013) had to manage when constructing their global forest loss product from Landsat data.</p>
+<div class="no-icon callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Script L4.5 covers:</strong> <code>addNDVI()</code> using <code>normalizedDifference()</code>; <code>ee.List.sequence()</code> and <code>ee.Date.fromYMD()</code> for monthly window construction; <code>createMonthlyImage()</code> as a mapping function; <code>ui.Chart.image.series</code> for NDVI phenology. Confirm <strong>Checkpoint L4-CP5</strong> before continuing.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-5-independent-application" class="level2">
+<h2 class="anchored" data-anchor-id="part-5-independent-application">Part 5 — Independent Application</h2>
+<section id="the-gran-chaco-2020" class="level3">
+<h3 class="anchored" data-anchor-id="the-gran-chaco-2020">The Gran Chaco, 2020</h3>
+<p>Script L4-EX1 asks you to apply the complete filter-map-reduce-aggregate pipeline — the same engine you used in Parts 1 through 4 — to a pre-assigned location and year. The study area is in the Gran Chaco of Paraguay, one of the four global deforestation hotspots documented by Hansen et al.&nbsp;(2013) in the paper you read for this lab. The year is 2020.</p>
+<p>The Gran Chaco is a dry subtropical forest with a pronounced wet season from November through April and a dry season from May through October. At this location, the landscape is a mosaic of intact forest and converted agricultural land — the geometric pattern of clearing is visible in the satellite basemap and in the NDVI composite you will produce. Hansen et al.&nbsp;used Landsat imagery and the same filter-map-reduce logic underlying these scripts to quantify how rapidly that mosaic was shifting toward agricultural land between 2000 and 2012.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/Chaco_RGB.png" class="img-fluid figure-img" style="width:95.0%"></p>
+<figcaption>True-color Landsat composite over the Gran Chaco study area, Paraguay (2020). The Gran Chaco is a dry subtropical forest that has experienced some of the most rapid agricultural conversion in South America over the past two decades; Hansen et al.&nbsp;(2013) identified this region as one of four global deforestation hotspots in their Landsat-based analysis.</figcaption>
+</figure>
+</div>
+<p>The year 2020 adds a second layer to the analysis. In that year, the Chaco and the adjacent Pantanal wetland experienced one of the most severe droughts and fire seasons on record. The NDVI time series you produce should show two things: the normal seasonal arc driven by the wet-dry cycle, and an anomalous departure in one or more of the late dry-season months. Your task is to describe what you see, identify where the anomaly falls in the seasonal cycle, and connect it to what you know about NDVI and vegetation stress.</p>
+<p>Your two remaining design decisions — the scene-level cloud threshold and the peak-growing-season month — are yours to choose and justify. The script’s guidance on both reflects what you have learned about the relationship between scene-level filtering and pixel-level masking, and about the southern-hemisphere timing of peak canopy cover. Read that guidance before choosing your values, and justify your choices in your SOP.</p>
+<div class="no-icon callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Script L4-EX1 covers:</strong> Independent application of the full pipeline; design decision justification; NDVI phenology interpretation in a new biome context. Confirm <strong>Checkpoint L4-EX1</strong> when complete.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="interpretation-questions" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation-questions">Interpretation Questions</h2>
+<p><em>Your answers to these questions belong in the Results section of your SOP.</em></p>
+<blockquote class="blockquote">
+<p><strong>Q1</strong> <em>(Script L4.1)</em> Campbell Ch. 11.2 defines the mean of a set of values as the sum divided by <em>n</em>, where <em>n</em> is the number of observations. In the filter-map-reduce workflow, the filter chain determines what <em>n</em> will be for every statistic computed later. Using your Console output from Script L4.1, describe how <em>n</em> changed at each of the three filter stages. Then, using the milk-store analogy Cardille et al.&nbsp;(Ch. F12) introduce, explain what each of your three filters corresponds to in that analogy. What are the “stores,” and what does each filter represent as a step in narrowing the list?</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Q2</strong> <em>(Script L4.2)</em> Campbell Ch. 11.2 introduces the histogram as a chart of how pixel values are distributed within a single band. The time series chart you produced in Script L4.2 is also a distribution — but organized along a different axis. Describe what axis a histogram uses and what axis the time series chart uses. Then examine your time series chart and identify at least one acquisition date where you can tell from the chart alone that cloud contamination likely affected the sample pixel. Explain what feature of that data point tells you the pixel was contaminated, using the reflectance properties of clouds that Campbell Ch. 2 describes.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Q3</strong> <em>(Script L4.3)</em> Campbell Ch. 11.4 describes the conversion from digital number to surface reflectance as a prerequisite for any physical interpretation of pixel values. Explain in your own words why applying <code>ee.Reducer.mean()</code> to the raw, unscaled collection — the BEFORE layer in Script L4.3 — would produce a result that cannot be compared to the AFTER composite, even if both images look similar on the map. In the same answer, explain why cloud masking is not optional before reducing: use a specific value from your time series chart in Q2 to illustrate what would happen to the mean at that pixel if the contaminated observation were included.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Q4</strong> <em>(Script L4.4)</em> Examine the three SR_B4 values printed to the Console in Script L4.4 — the mean, median, and 30th-percentile composites at the Lisbon point. Campbell Ch. 11.2 distinguishes the mean from the median by their sensitivity to outliers. Using those three values, describe (a) what the gap between mean and median tells you about the distribution of pixel values in the stack at this location, and (b) why the 30th-percentile value is systematically lower than both. Then look at the histogram the script produces. Use the legend colors to identify each curve and describe the shape and relative position of the three distributions: where does each distribution peak along the reflectance axis, which curve sits farthest to the left (toward lower reflectance), and how do their spreads compare? Connect what you observe to the compositing logic that produced each reducer — why would one distribution be systematically shifted toward lower values?</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Q5</strong> <em>(Script L4.4)</em> Script L4.4 includes a parameter — <code>CLOUD_MAX_SCENE</code> — that screens entire Landsat scenes before any pixel-level processing occurs, and a bitmask inside <code>maskAndScale()</code> that removes individual cloud pixels. These are two distinct quality controls operating at two different scales. Explain the difference in what each control does and what each one cannot do alone. At what point does changing <code>CLOUD_MAX_SCENE</code> affect the <em>chart</em> at a single pixel, and when does it not? Your answer should draw on what you observed when experimenting with the threshold in Script L4.4.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Q6</strong> <em>(Script L4.5)</em> The NDVI time series chart from Script L4.5 samples a single pixel in the Skagit Valley. Describe the shape of the annual NDVI curve you see: when does the vegetation at your sample point reach its highest values, when does it reach its lowest, and how abrupt or gradual are those transitions? Campbell Ch. 17.3 discusses phenological cycles in terms of the underlying biological and climatic drivers. Based on those drivers, suggest what land cover type or crop cycle is most consistent with the timing and amplitude of the curve you observe. Then compare the timing of peak NDVI in your Skagit Valley chart to the timing of peak NDVI in the Gran Chaco chart from L4-EX1 — what does the difference tell you about the two regions?</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Q7</strong> <em>(Script L4-EX1)</em> Examine the peak-month NDVI map and the monthly time series chart from Script L4-EX1. In the map, describe the spatial pattern of NDVI values — where are the highest values, where are the lowest, and what land cover types correspond to each when you toggle to the satellite basemap? Draw on the spectral vocabulary you developed in Module 3 when describing what you see. In the time series chart, identify any month where NDVI departs from the seasonal arc, and describe the departure in terms of timing, magnitude, and what it suggests about the nature of the disturbance — vegetation stress versus vegetation removal. Explain the most likely physical cause using what you know about how drought and fire affect surface reflectance, and connect both observations to what Hansen et al.&nbsp;(2013) documented about forest loss in this region.</p>
+</blockquote>
+<hr>
+</section>
+<section id="standard-operating-procedure" class="level2">
+<h2 class="anchored" data-anchor-id="standard-operating-procedure">Standard Operating Procedure</h2>
+<p>Complete this section in your own words as you work through the lab. Your SOP documents your workflow so that a technically competent colleague could replicate your exact analysis.</p>
+<section id="study-area" class="level3">
+<h3 class="anchored" data-anchor-id="study-area">Study Area</h3>
+<p>This lab spans three geographic locations used across the five scripts. Identify each study area by name, coordinates, and a brief description of the environmental or land use context that makes it relevant to the questions this lab asks.</p>
+</section>
+<section id="data-sources" class="level3">
+<h3 class="anchored" data-anchor-id="data-sources">Data Sources</h3>
+<p>List every dataset loaded across the five scripts. For each entry, record the dataset name, collection ID as it appears in GEE, sensor, spatial resolution, and the date range you filtered to.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Dataset</th>
+<th>Collection ID</th>
+<th>Sensor</th>
+<th>Spatial Res. (m)</th>
+<th>Date Range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><em>Add rows as needed.</em></p>
+</section>
+<section id="methods" class="level3">
+<h3 class="anchored" data-anchor-id="methods">Methods</h3>
+<p>Describe the workflow you applied in each script. Your Methods section should explain how you built the filter chain, what function you mapped over the collection and why, which reducer you chose for each composite and the reasoning behind it, and how you structured the monthly aggregation. For the independent exercise, explain the design decisions you made for cloud threshold and peak month, connecting each choice to the regional climate and sensor logic described in the script.</p>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<p>Include the following in this section:</p>
+<ul>
+<li>Screenshots of the BEFORE and AFTER mosaics from Script L4.3, with descriptive captions</li>
+<li>The Console output showing mean, median, and 30th-percentile SR_B4 values at the Lisbon point from Script L4.4</li>
+<li>The SR_B4 histogram comparing all three reducer distributions from Script L4.4</li>
+<li>The NDVI time series chart from Script L4.5 (Skagit Valley)</li>
+<li>The peak-month NDVI map and NDVI time series chart from Script L4-EX1 (Gran Chaco)</li>
+<li>Answers to Interpretation Questions Q1–Q7</li>
+</ul>
+</section>
+<section id="limitations" class="level3">
+<h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
+<p>Identify the limitations of the analysis you performed in this lab. These should be methodological or data-related — not personal difficulties with the software.</p>
+<p><em>Consider: the spatial scale at which a single-pixel chart represents a landscape; what the scene-level cloud threshold can and cannot protect against; the choice of calendar year for monthly aggregation and what it excludes; whether a single-point NDVI sample is representative of the broader land cover visible in the map; and what would be needed to distinguish fire, drought, and land use change as causes of an NDVI anomaly.</em></p>
+<hr>
+</section>
+</section>
+<section id="submission-checklist" class="level2">
+<h2 class="anchored" data-anchor-id="submission-checklist">Submission Checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>BEFORE/AFTER mosaic screenshots</strong> — one screenshot each from Script L4.3 showing the unscaled and cloud-masked composites with captions</label></li>
+<li><label><input type="checkbox"><strong>Console output screenshot</strong> — mean, median, and 30th-percentile SR_B4 values at the Lisbon point from Script L4.4</label></li>
+<li><label><input type="checkbox"><strong>SR_B4 histogram</strong> — the three-reducer distribution comparison from Script L4.4</label></li>
+<li><label><input type="checkbox"><strong>Skagit Valley NDVI chart</strong> — monthly time series from Script L4.5</label></li>
+<li><label><input type="checkbox"><strong>Gran Chaco peak-month NDVI map</strong> — from Script L4-EX1 at your chosen peak month</label></li>
+<li><label><input type="checkbox"><strong>Gran Chaco NDVI time series chart</strong> — monthly time series from Script L4-EX1</label></li>
+<li><label><input type="checkbox"><strong>Answers to Interpretation Questions Q1–Q7</strong></label></li>
+<li><label><input type="checkbox"><strong>Completed SOP</strong> (all five sections)</label></li>
+</ul>
+<div class="no-icon callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Grading Note</strong></p>
+<p>This lab is graded as a Weekly Methods Log (SOP). The interpretation questions carry the most weight — particularly Q3 (preprocessing logic), Q4 (reducer comparison), and Q7 (Gran Chaco map and anomaly). Answers that describe what you see without connecting it to the underlying physics or statistics of the workflow will receive partial credit. The Limitations section is evaluated on specificity: a limitation that names a general category without explaining its mechanism and consequence in this specific context will receive less credit than one that ties the limitation to a concrete choice you made during the lab.</p>
+</div>
+</div>
+<hr>
+<p><em>ESCI 442/542 — Introduction to Remote Sensing | Western Washington University</em></p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
