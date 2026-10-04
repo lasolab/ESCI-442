@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ESCI 442/542 — Introduction to Remote Sensing · Lab materials</title>
+<meta name="description" content="Open lab materials for ESCI 442/542 Introduction to Remote Sensing at Western Washington University: Google Earth Engine labs on compositing, classification, accuracy assessment and change detection.">
+<link rel="icon" href="laso-icon-small-color.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+  :root { --olive:#5E5A3C; --olive-dark:#4B4830; --ink:#23241C; --muted:#4A493F; --grey:#6F6C64; --ground:#F8F7F2; --line:#DEDCD2; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink); font-family:"Source Sans 3", system-ui, sans-serif; font-size:18px; line-height:1.6; }
+  a { color:var(--olive-dark); text-underline-offset:3px; }
+  a:focus-visible { outline:3px solid var(--olive); outline-offset:3px; border-radius:4px; }
+  header { background:#fff; border-bottom:1px solid var(--line); }
+  .wrap { max-width:900px; margin:0 auto; padding:0 24px; }
+  header .wrap { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:14px; padding-bottom:14px; flex-wrap:wrap; }
+  header img { height:36px; display:block; }
+  header nav a { font-weight:600; text-decoration:none; color:var(--ink); }
+  main { padding:56px 0 72px; }
+  .eyebrow { font-family:Montserrat, sans-serif; font-size:.78rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--grey); margin:0 0 .6rem; }
+  h1 { font-family:Montserrat, sans-serif; font-weight:700; font-size:clamp(1.9rem, 4vw, 2.6rem); line-height:1.15; margin:0 0 1rem; }
+  .lead { color:var(--muted); font-size:1.1rem; margin:0 0 2.5rem; max-width:40em; }
+  ol { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
+  li a { display:flex; gap:18px; align-items:baseline; background:#fff; border:1px solid var(--line); border-radius:10px; padding:18px 22px; text-decoration:none; color:var(--ink); min-height:44px; }
+  li a:hover { border-color:var(--olive); }
+  .num { font-family:Montserrat, sans-serif; font-weight:700; color:var(--olive); min-width:2.2em; }
+  .t { font-weight:600; font-size:1.1rem; }
+  footer { border-top:1px solid var(--line); background:#fff; font-size:.9rem; color:var(--muted); }
+  footer .wrap { padding-top:20px; padding-bottom:24px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a href="https://lasolab.github.io/"><img src="laso-wordmark-color.svg" alt="LASO Lab — home"></a>
+    <nav aria-label="Main"><a href="https://lasolab.github.io/teaching.html">Teaching</a></nav>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <p class="eyebrow">Western Washington University</p>
+    <h1>ESCI 442/542 — Introduction to Remote Sensing</h1>
+    <p class="lead">Lab materials for an undergraduate and graduate course on the physics of remote sensing, raster analysis and cloud computing in Google Earth Engine. Each lab opens in your browser; they build on each other, so work through them in order.</p>
+    <ol>
+      <li><a href="lab01_local_baseline.html"><span class="num">01</span><span class="t">The Local Baseline</span></a></li>
+      <li><a href="lab02_cloud_shift.html"><span class="num">02</span><span class="t">The Cloud Shift</span></a></li>
+      <li><a href="lab03_sensor_selection.html"><span class="num">03</span><span class="t">Matching Sensor to Purpose</span></a></li>
+      <li><a href="lab04_compositing.html"><span class="num">04</span><span class="t">Building and Reducing Image Collections</span></a></li>
+      <li><a href="lab05_heatdome.html"><span class="num">05</span><span class="t">The 2021 Heat Dome in the Salish Sea</span></a></li>
+      <li><a href="lab06_classification.html"><span class="num">06</span><span class="t">Classifying the Salish Sea</span></a></li>
+      <li><a href="lab07_accuracy_assessment.html"><span class="num">07</span><span class="t">Accurate Against What?</span></a></li>
+      <li><a href="lab08_change_detection.html"><span class="num">08</span><span class="t">Change Detection and Time Series</span></a></li>
+    </ol>
+  </div>
+</main>
+<footer>
+  <div class="wrap">Francisco Laso · LASO Lab · Western Washington University · <a href="https://github.com/lasolab/ESCI-442">Source on GitHub</a></div>
+</footer>
+</body>
+</html>
